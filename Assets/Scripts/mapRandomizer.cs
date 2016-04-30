@@ -83,6 +83,9 @@ public class mapRandomizer : MonoBehaviour {
 	Dictionary<string,string> monstersTrait2 = new Dictionary<string, string> ();
 	Dictionary<string,string> monstersAttackType = new Dictionary<string, string> ();
 
+	public Sprite deadEndIn;
+	public Sprite deadEndOut;
+
 	public List<Sprite> baseGameOut;
 	public List<Sprite> baseGameIn;
 
@@ -165,6 +168,9 @@ public class mapRandomizer : MonoBehaviour {
 	}
 
 	void Update () {
+		if ((float)Screen.width / (float)Screen.height <= 1.6) Camera.main.orthographicSize = 8f / ((float)Screen.width / (float)Screen.height);
+		else Camera.main.orthographicSize = 5f;
+
 		int numberOfRooms = createdRooms;
 		if (isItOut == true) {
 			if (Vector3.Distance (Camera.main.ScreenToWorldPoint (Input.mousePosition) + new Vector3 (0f, 0f, 9.5f), exploreButton.transform.position) <= 1.0f
@@ -731,6 +737,18 @@ public class mapRandomizer : MonoBehaviour {
 		{
 			MakeDoorsForTransitionIndoor ();
 			isItOut = true;
+		}
+
+		if (mapsOut.Count == 0)
+		{
+			for(int i = 0; i < map.transform.childCount; i++){
+				if (map.transform.GetChild (i).name == "Exit(Clone)") map.transform.GetChild (i).GetComponent<SpriteRenderer> ().sprite = null;
+				else if (map.transform.GetChild (i).name == "Yellow-Door(Clone)")
+				{
+					if (isItOut == true) map.transform.GetChild (i).GetComponent<SpriteRenderer> ().sprite = deadEndOut;
+					if (isItOut == false) map.transform.GetChild (i).GetComponent<SpriteRenderer> ().sprite = deadEndIn;
+				}
+			}
 		}
 	}
 
