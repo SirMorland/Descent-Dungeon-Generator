@@ -164,7 +164,7 @@ public class mapRandomizer : MonoBehaviour {
 		{
 			ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
 			client.Encoding = System.Text.Encoding.UTF8;
-			allData = client.DownloadString("https://boardgamegeek.com/thread/printerfriendly/1569631").Split(new string[]{"<td>"}, System.StringSplitOptions.None);
+			allData = client.DownloadString("https://boardgamegeek.com/thread/printerfriendly/1570101").Split(new string[]{"<td>"}, System.StringSplitOptions.None);
 			PlayerPrefs.SetString("data",string.Join("<td>",allData));
 		}
 		catch
