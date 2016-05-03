@@ -25,13 +25,13 @@ public class explorationCardDiscarder : MonoBehaviour {
 			{
 				isActive = false;
 				GetComponent<SpriteRenderer> ().sprite = explorationCardColor [1];
-				transform.GetChild (4).GetComponent<SpriteRenderer> ().sprite = hourglass[1];
+				transform.GetChild (1).GetComponent<SpriteRenderer> ().sprite = hourglass[1];
 			}
 			if (currentActiveStatus == false)
 			{
 				isActive = true;
 				GetComponent<SpriteRenderer> ().sprite = explorationCardColor [0];
-				transform.GetChild (4).GetComponent<SpriteRenderer> ().sprite = hourglass[0];
+				transform.GetChild (1).GetComponent<SpriteRenderer> ().sprite = hourglass[0];
 			}
 		}
 	

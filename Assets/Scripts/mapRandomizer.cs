@@ -3,6 +3,7 @@ using UnityEngine.SceneManagement;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
+using UnityEngine.UI;
 
 public class mapRandomizer : MonoBehaviour {
 	
@@ -24,6 +25,7 @@ public class mapRandomizer : MonoBehaviour {
 
 	public GameObject map;
 	public GameObject explorationCard;
+	public GameObject afterSetup;
 	public GameObject hourglass;
 
 	bool isItOut;
@@ -55,6 +57,13 @@ public class mapRandomizer : MonoBehaviour {
 
 	public Sprite[] playerNumber;
 	public string currentMonster;
+
+	public GameObject nameText;
+	public GameObject questText;
+	public GameObject afterSetupText;
+	public GameObject hourglassTimeText;
+	public GameObject hourglassOverlordTurnText;
+	public GameObject overlordTurnText;
 
 	public Sprite explorationCardColor;
 	public Sprite hourglassColor;
@@ -111,7 +120,6 @@ public class mapRandomizer : MonoBehaviour {
 
 	WebClient client = new WebClient();
 	string[] allData;
-	public Texture2D[] texture = new Texture2D[4];
 
 	#endregion
 
@@ -152,8 +160,17 @@ public class mapRandomizer : MonoBehaviour {
 		monstersAttackType.Add ("Goblin", "ranged");
 		monstersAttackType.Add ("Zombie", "melee");
 
-		ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
-		allData = client.DownloadString("https://boardgamegeek.com/thread/printerfriendly/1569631").Split(new string[]{"<td>"}, System.StringSplitOptions.None);
+		try
+		{
+			ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+			client.Encoding = System.Text.Encoding.UTF8;
+			allData = client.DownloadString("https://boardgamegeek.com/thread/printerfriendly/1569631").Split(new string[]{"<td>"}, System.StringSplitOptions.None);
+			PlayerPrefs.SetString("data",string.Join("<td>",allData));
+		}
+		catch
+		{
+			allData = PlayerPrefs.GetString("data").Split(new string[]{"<td>"}, System.StringSplitOptions.None);
+		}
 
 		MakeQuestFromWWW ();
 
@@ -207,6 +224,15 @@ public class mapRandomizer : MonoBehaviour {
 				currentMonster = "";
 				currentQuest = "";
 				possibleQuests.Clear ();
+				nameText.GetComponent<Text> ().text = "";
+				questText.GetComponent<Text> ().text = "";
+				afterSetupText.GetComponent<Text> ().text = "";
+				hourglassTimeText.GetComponent<Text> ().text = "";
+				hourglassOverlordTurnText.GetComponent<Text> ().text = "";
+				overlordTurnText.GetComponent<Text> ().text = "";
+				afterSetup.SetActive (false);
+				hourglass.SetActive (false);
+
 
 				MakeProps ();
 
@@ -251,6 +277,14 @@ public class mapRandomizer : MonoBehaviour {
 				currentMonster = "";
 				currentQuest = "";
 				possibleQuests.Clear ();
+				nameText.GetComponent<Text> ().text = "";
+				questText.GetComponent<Text> ().text = "";
+				afterSetupText.GetComponent<Text> ().text = "";
+				hourglassTimeText.GetComponent<Text> ().text = "";
+				hourglassOverlordTurnText.GetComponent<Text> ().text = "";
+				overlordTurnText.GetComponent<Text> ().text = "";
+				afterSetup.SetActive (false);
+				hourglass.SetActive (false);
 
 				MakeProps ();
 
@@ -765,29 +799,6 @@ public class mapRandomizer : MonoBehaviour {
 		explorationCard.GetComponent<SpriteRenderer> ().sprite = explorationCardColor;
 		hourglass.GetComponent<SpriteRenderer> ().sprite = hourglassColor;
 		explorationCard.GetComponent<explorationCardDiscarder> ().isActive = true;
-
-		if(isItOut == true)
-		{
-			int tileNumber = 0;
-			int.TryParse (map.GetComponent<SpriteRenderer> ().sprite.name.Substring (0, 2),out tileNumber);
-			if(tileNumber != 0) explorationCard.transform.GetChild (0).GetComponent<SpriteRenderer> ().sprite = baseGameExplorationCardNamesOut [tileNumber - 1];
-			if (tileNumber == 0) explorationCard.transform.GetChild (0).GetComponent<SpriteRenderer> ().sprite = baseGameExplorationCardNamesMisc [1];
-		}
-		if(isItOut == false)
-		{
-			int tileNumber = 0;
-			int.TryParse (map.GetComponent<SpriteRenderer> ().sprite.name.Substring (0, 2),out tileNumber);
-			if(tileNumber != 0) explorationCard.transform.GetChild (0).GetComponent<SpriteRenderer> ().sprite = baseGameExplorationCardNamesIn [tileNumber - 1];
-			if (tileNumber == 0) explorationCard.transform.GetChild (0).GetComponent<SpriteRenderer> ().sprite = baseGameExplorationCardNamesMisc [0];
-		}
-
-		explorationCard.transform.GetChild (1).GetComponent<SpriteRenderer> ().sprite = null;
-
-		explorationCard.transform.GetChild (2).GetComponent<SpriteRenderer> ().sprite = null;
-
-		explorationCard.transform.GetChild (3).GetComponent<SpriteRenderer> ().sprite = null;
-
-		explorationCard.transform.GetChild (4).GetComponent<SpriteRenderer> ().sprite = null;
 	}
 
 	#region MakeDoors
@@ -3304,9 +3315,15 @@ public class mapRandomizer : MonoBehaviour {
 		}
 
 		if(possibleQuests.Count > 0) MakeQuestFromWWW (possibleQuests [Random.Range (0, possibleQuests.Count)]);
-		if(possibleQuests.Count == 0) explorationCard.transform.GetChild (3).GetComponent<SpriteRenderer> ().sprite = standardOverlordTurn [Random.Range (0, standardOverlordTurn.Count)];
+		if (possibleQuests.Count == 0)
+		{
+			nameText.GetComponent<Text> ().text = "Nothing happens";
+			afterSetupText.GetComponent<Text>().text = "AFTER SETUP: Discard this Exploration card.";
+			afterSetup.SetActive (true);
+		}
 	}
 
+	/*
 	void MakeQuest (string questName)
 	{
 		currentQuest = questName;
@@ -3329,7 +3346,7 @@ public class mapRandomizer : MonoBehaviour {
 		baseGameUniqueQuestsMonster.Remove (questName);
 		nullUniqueQuestsSpace.Remove (questName);
 		nullUniqueQuestsMonster.Remove (questName);
-	}
+	}*/
 		
 	void MakeQuestFromWWW ()
 	{
@@ -3359,21 +3376,21 @@ public class mapRandomizer : MonoBehaviour {
 
 			for (int j = 0; j < oneQuest.Length; j++)
 			{
-				if (oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None) [0].Trim() == "spaceReguirement")
+				if (oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None) [0].Trim() == "spaceRequirement")
 				{
 					if (oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None).Length == 2) {
-						int spaceReguirement = 100;
-						int.TryParse (oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None) [1].Trim (), out spaceReguirement);
-						if (category == "standard") standardQuestsSpace.Add (questName, spaceReguirement);
-						if (category == "baseGame") baseGameUniqueQuestsSpace.Add (questName, spaceReguirement);
-						if (category == "null") nullUniqueQuestsSpace.Add (questName, spaceReguirement);
+						int spaceRequirement = 100;
+						int.TryParse (oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None) [1].Trim (), out spaceRequirement);
+						if (category == "standard") standardQuestsSpace.Add (questName, spaceRequirement);
+						if (category == "baseGame") baseGameUniqueQuestsSpace.Add (questName, spaceRequirement);
+						if (category == "null") nullUniqueQuestsSpace.Add (questName, spaceRequirement);
 					}
 				}
 			}
 
 			for (int j = 0; j < oneQuest.Length - 1; j++)
 			{
-				if (oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None) [0].Trim() == "monsterReguirement")
+				if (oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None) [0].Trim() == "monsterRequirement")
 				{
 					if (oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None).Length == 2) {
 						if (category == "standard") standardQuestsMonster.Add (questName, oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None) [1].Trim());
@@ -3389,26 +3406,60 @@ public class mapRandomizer : MonoBehaviour {
 	{
 		currentQuest = questName;
 
-		for (int i = 1; i < allData.Length; i++)
+		for (int i = 2; i < allData.Length; i++)
 		{
-			string[] questOne = allData[i].Split(new string[] { "<div >" }, System.StringSplitOptions.None);
+			string[] oneQuest = allData[i].Split(new string[] { "</div>" }, System.StringSplitOptions.None)[1].Split(new string[] { "</td>" }, System.StringSplitOptions.None)[0].Split(new string[] { "<br />" }, System.StringSplitOptions.None);
 
-			string[] questOneStats = questOne[0].Split(new string[] { "</div>" }, System.StringSplitOptions.None)[1].Split(new string[] { "<br />" }, System.StringSplitOptions.None);
-
-			for (int j = 0; j < questOneStats.Length - 1; j++)
+			for (int j = 0; j < oneQuest.Length; j++)
 			{
-				if (questOneStats [j].Split (new string[] { ":" }, System.StringSplitOptions.None) [0].Trim() == "name")
+				if (oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None) [0].Trim() == "name")
 				{
-					if (questOneStats [j].Split (new string[] { ":" }, System.StringSplitOptions.None).Length == 2)
+					if (oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None).Length == 2)
 					{
-						if (questOneStats [j].Split (new string[] { ":" }, System.StringSplitOptions.None) [1].Trim () == questName)
+						if (oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None) [1].Trim () == questName)
 						{
-							for (int k = 1; k < questOne.Length; k++)
+							nameText.GetComponent<Text> ().text = oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None) [1].Trim ();
+
+							for (int k = 0; k < oneQuest.Length; k++)
 							{
-								StartCoroutine(ImageDownloader (questOne, k));
+								if (oneQuest [k].Split (new string[] { ":" }, System.StringSplitOptions.None) [0].Trim () == "quest")
+								{
+									if (oneQuest [k].Split (new string[] { ":" }, System.StringSplitOptions.None).Length == 2)
+									{
+										questText.GetComponent<Text> ().text = oneQuest [k].Split (new string[] { ":" }, System.StringSplitOptions.None) [1].Trim ().Replace("/","\n");
+									}
+								}
+								if (oneQuest [k].Split (new string[] { ":" }, System.StringSplitOptions.None) [0].Trim () == "afterSetup")
+								{
+									if (oneQuest [k].Split (new string[] { ":" }, System.StringSplitOptions.None).Length == 2)
+									{
+										afterSetupText.GetComponent<Text> ().text = "AFTER SETUP: " + oneQuest [k].Split (new string[] { ":" }, System.StringSplitOptions.None) [1].Trim ();
+										afterSetup.SetActive (true);
+									}
+								}
+								if (oneQuest [k].Split (new string[] { ":" }, System.StringSplitOptions.None) [0].Trim () == "hourglassTime")
+								{
+									if (oneQuest [k].Split (new string[] { ":" }, System.StringSplitOptions.None).Length == 2)
+									{
+										hourglassTimeText.GetComponent<Text> ().text = oneQuest [k].Split (new string[] { ":" }, System.StringSplitOptions.None) [1].Trim ();
+										hourglass.SetActive (true);
+									}
+								}
+								if (oneQuest [k].Split (new string[] { ":" }, System.StringSplitOptions.None) [0].Trim () == "hourglassOverlordTurn")
+								{
+									if (oneQuest [k].Split (new string[] { ":" }, System.StringSplitOptions.None).Length == 2)
+									{
+										hourglassOverlordTurnText.GetComponent<Text> ().text = oneQuest [k].Split (new string[] { ":" }, System.StringSplitOptions.None) [1].Trim ();
+									}
+								}
+								if (oneQuest [k].Split (new string[] { ":" }, System.StringSplitOptions.None) [0].Trim () == "overlordTurn")
+								{
+									if (oneQuest [k].Split (new string[] { ":" }, System.StringSplitOptions.None).Length == 2)
+									{
+										overlordTurnText.GetComponent<Text> ().text = oneQuest [k].Split (new string[] { ":" }, System.StringSplitOptions.None) [1].Trim ();
+									}
+								}
 							}
-								
-							if (questOne.Length <= 3) explorationCard.transform.GetChild (3).GetComponent<SpriteRenderer> ().sprite = standardOverlordTurn [Random.Range (0, standardOverlordTurn.Count)];
 						}
 					}
 				}
@@ -3419,17 +3470,6 @@ public class mapRandomizer : MonoBehaviour {
 		baseGameUniqueQuestsMonster.Remove (questName);
 		nullUniqueQuestsSpace.Remove (questName);
 		nullUniqueQuestsMonster.Remove (questName);
-	}
-
-	IEnumerator ImageDownloader(string[] questOne, int k)
-	{
-		WWW www = new WWW(questOne[k].Split(new string[] { "//" }, System.StringSplitOptions.None)[1].Split(new string[] { "_t" }, System.StringSplitOptions.None)[0] + ".png");
-
-		yield return www;
-
-		texture [k] = www.texture;
-
-		explorationCard.transform.GetChild (k).GetComponent<SpriteRenderer> ().sprite = Sprite.Create (texture [k], new Rect (0f, 0f, 360f, 619f), new Vector2 (0.5f, 0.5f), 72f);
 	}
 
 	void MakeTokens ()
