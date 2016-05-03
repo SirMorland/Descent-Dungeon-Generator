@@ -2,6 +2,7 @@
 using UnityEngine.SceneManagement;
 using System.Collections;
 using System.Collections.Generic;
+using System.Net;
 
 public class mapRandomizer : MonoBehaviour {
 	
@@ -23,6 +24,7 @@ public class mapRandomizer : MonoBehaviour {
 
 	public GameObject map;
 	public GameObject explorationCard;
+	public GameObject hourglass;
 
 	bool isItOut;
 	bool inMainScreen;
@@ -55,14 +57,16 @@ public class mapRandomizer : MonoBehaviour {
 	public string currentMonster;
 
 	public Sprite explorationCardColor;
+	public Sprite hourglassColor;
 
-	Dictionary<string, int> uniqueQuests = new Dictionary<string, int>();
-	Dictionary<string, string> uniqueMonsterQuests = new Dictionary<string, string>();
+	Dictionary<string, int> standardQuestsSpace = new Dictionary<string, int>();
+	Dictionary<string, string> standardQuestsMonster = new Dictionary<string, string>();
+	Dictionary<string, int> baseGameUniqueQuestsSpace = new Dictionary<string, int>();
+	Dictionary<string, string> baseGameUniqueQuestsMonster = new Dictionary<string, string>();
+	Dictionary<string, int> nullUniqueQuestsSpace = new Dictionary<string, int>();
+	Dictionary<string, string> nullUniqueQuestsMonster = new Dictionary<string, string>();
+
 	public List<string> possibleQuests;
-	public List<Sprite> questImages;
-	public List<Sprite> afterSetupImages;
-	public List<Sprite> standardOverlordTurn;
-	public List<Sprite> specificOverlordTurn;
 
 	public string currentQuest;
 
@@ -95,10 +99,6 @@ public class mapRandomizer : MonoBehaviour {
 	public List<Sprite> mapsOut;
 	public List<Sprite> mapsIn;
 
-	public List<Sprite> baseGameExplorationCardNamesOut;
-	public List<Sprite> baseGameExplorationCardNamesIn;
-	public List<Sprite> baseGameExplorationCardNamesMisc;
-
 	public List<GameObject> activateCards;
 	public GameObject[] allActivateCards;
 	public Sprite[] rangedMoves;
@@ -108,6 +108,10 @@ public class mapRandomizer : MonoBehaviour {
 
 	Vector3 oldPos;
 	public float speed;
+
+	WebClient client = new WebClient();
+	string[] allData;
+	public Texture2D[] texture = new Texture2D[4];
 
 	#endregion
 
@@ -148,9 +152,10 @@ public class mapRandomizer : MonoBehaviour {
 		monstersAttackType.Add ("Goblin", "ranged");
 		monstersAttackType.Add ("Zombie", "melee");
 
-		uniqueQuests.Add ("villagerInStress", 1);
+		ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+		allData = client.DownloadString("https://boardgamegeek.com/thread/printerfriendly/1569631").Split(new string[]{"<td>"}, System.StringSplitOptions.None);
 
-		uniqueMonsterQuests.Add ("zombiesKeepComing", "Zombie");
+		MakeQuestFromWWW ();
 
 		//*
 		mapsOut.AddRange (baseGameOut);
@@ -209,7 +214,8 @@ public class mapRandomizer : MonoBehaviour {
 
 				MakeMonsters ();
 				MakeQuest ();
-				MakeTokens ();
+				//MakeTokens ();
+				MakeTokensFromWWW ();
 				MakeActivationCardLayouts ();
 
 				if (mapsOut.Count == 0) exploreButton.GetComponent<SpriteRenderer> ().sprite = blackExploreButton;
@@ -252,7 +258,8 @@ public class mapRandomizer : MonoBehaviour {
 
 				MakeMonsters ();
 				MakeQuest ();
-				MakeTokens ();
+				//MakeTokens ();
+				MakeTokensFromWWW ();
 				MakeActivationCardLayouts ();
 
 				if (mapsIn.Count == 0) exploreButton.GetComponent<SpriteRenderer> ().sprite = blackExploreButton;
@@ -756,6 +763,7 @@ public class mapRandomizer : MonoBehaviour {
 	{
 		explorationCard.transform.localScale = new Vector3 (1f, 1f, 1f);
 		explorationCard.GetComponent<SpriteRenderer> ().sprite = explorationCardColor;
+		hourglass.GetComponent<SpriteRenderer> ().sprite = hourglassColor;
 		explorationCard.GetComponent<explorationCardDiscarder> ().isActive = true;
 
 		if(isItOut == true)
@@ -777,7 +785,7 @@ public class mapRandomizer : MonoBehaviour {
 
 		explorationCard.transform.GetChild (2).GetComponent<SpriteRenderer> ().sprite = null;
 
-		explorationCard.transform.GetChild (3).GetComponent<SpriteRenderer> ().sprite = standardOverlordTurn [Random.Range (0, standardOverlordTurn.Count)];
+		explorationCard.transform.GetChild (3).GetComponent<SpriteRenderer> ().sprite = null;
 
 		explorationCard.transform.GetChild (4).GetComponent<SpriteRenderer> ().sprite = null;
 	}
@@ -3245,25 +3253,58 @@ public class mapRandomizer : MonoBehaviour {
 
 	void MakeQuest ()
 	{
-		if(currentMonster != "") possibleQuests.Add ("killAll" + currentMonster + "s");
+		//if(currentMonster != "") possibleQuests.Add ("killAll" + currentMonster + "s");
 
-		foreach (string key in uniqueQuests.Keys)
+		foreach (string key in standardQuestsSpace.Keys)
 		{
-			if (uniqueQuests [key] <= spawn1x1.Count)
+			if (standardQuestsSpace [key] <= spawn1x1.Count)
 			{
 				possibleQuests.Add (key);
 			}
 		}
 
-		foreach (string key in uniqueMonsterQuests.Keys)
+		foreach (string key in standardQuestsMonster.Keys)
 		{
-			if (uniqueMonsterQuests [key] == currentMonster)
+			if (standardQuestsMonster [key] == currentMonster)
 			{
 				possibleQuests.Add (key);
 			}
 		}
 
-		if(possibleQuests.Count > 0) MakeQuest (possibleQuests [Random.Range (0, possibleQuests.Count)]);
+		foreach (string key in baseGameUniqueQuestsSpace.Keys)
+		{
+			if (baseGameUniqueQuestsSpace [key] <= spawn1x1.Count)
+			{
+				possibleQuests.Add (key);
+			}
+		}
+
+		foreach (string key in baseGameUniqueQuestsMonster.Keys)
+		{
+			if (baseGameUniqueQuestsMonster [key] == currentMonster)
+			{
+				possibleQuests.Add (key);
+			}
+		}
+
+		foreach (string key in nullUniqueQuestsSpace.Keys)
+		{
+			if (nullUniqueQuestsSpace [key] <= spawn1x1.Count)
+			{
+				possibleQuests.Add (key);
+			}
+		}
+
+		foreach (string key in nullUniqueQuestsMonster.Keys)
+		{
+			if (nullUniqueQuestsMonster [key] == currentMonster)
+			{
+				possibleQuests.Add (key);
+			}
+		}
+
+		if(possibleQuests.Count > 0) MakeQuestFromWWW (possibleQuests [Random.Range (0, possibleQuests.Count)]);
+		if(possibleQuests.Count == 0) explorationCard.transform.GetChild (3).GetComponent<SpriteRenderer> ().sprite = standardOverlordTurn [Random.Range (0, standardOverlordTurn.Count)];
 	}
 
 	void MakeQuest (string questName)
@@ -3284,8 +3325,111 @@ public class mapRandomizer : MonoBehaviour {
 			if (overlordTurn.name == questName) explorationCard.transform.GetChild (3).GetComponent<SpriteRenderer> ().sprite = overlordTurn;
 		}
 
-		uniqueQuests.Remove (questName);
-		uniqueMonsterQuests.Remove (questName);
+		baseGameUniqueQuestsSpace.Remove (questName);
+		baseGameUniqueQuestsMonster.Remove (questName);
+		nullUniqueQuestsSpace.Remove (questName);
+		nullUniqueQuestsMonster.Remove (questName);
+	}
+		
+	void MakeQuestFromWWW ()
+	{
+		for (int i = 2; i < allData.Length; i++)
+		{
+			string[] oneQuest = allData[i].Split(new string[] { "</div>" }, System.StringSplitOptions.None)[1].Split(new string[] { "</td>" }, System.StringSplitOptions.None)[0].Split(new string[] { "<br />" }, System.StringSplitOptions.None);
+
+			string questName = "";
+
+			for (int j = 0; j < oneQuest.Length; j++)
+			{
+				if (oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None) [0].Trim() == "name")
+				{
+					if(oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None).Length == 2) questName = oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None) [1].Trim();
+				}
+			}
+
+			string category = "";
+
+			for (int j = 0; j < oneQuest.Length; j++)
+			{
+				if (oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None) [0].Trim() == "category")
+				{
+					if (oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None).Length == 2) category = oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None) [1].Trim ();
+				}
+			}
+
+			for (int j = 0; j < oneQuest.Length; j++)
+			{
+				if (oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None) [0].Trim() == "spaceReguirement")
+				{
+					if (oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None).Length == 2) {
+						int spaceReguirement = 100;
+						int.TryParse (oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None) [1].Trim (), out spaceReguirement);
+						if (category == "standard") standardQuestsSpace.Add (questName, spaceReguirement);
+						if (category == "baseGame") baseGameUniqueQuestsSpace.Add (questName, spaceReguirement);
+						if (category == "null") nullUniqueQuestsSpace.Add (questName, spaceReguirement);
+					}
+				}
+			}
+
+			for (int j = 0; j < oneQuest.Length - 1; j++)
+			{
+				if (oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None) [0].Trim() == "monsterReguirement")
+				{
+					if (oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None).Length == 2) {
+						if (category == "standard") standardQuestsMonster.Add (questName, oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None) [1].Trim());
+						if (category == "baseGame") baseGameUniqueQuestsMonster.Add (questName, oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None) [1].Trim());
+						if (category == "null") nullUniqueQuestsMonster.Add (questName, oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None) [1].Trim());
+					}
+				}
+			}
+		}
+	}
+
+	void MakeQuestFromWWW (string questName)
+	{
+		currentQuest = questName;
+
+		for (int i = 1; i < allData.Length; i++)
+		{
+			string[] questOne = allData[i].Split(new string[] { "<div >" }, System.StringSplitOptions.None);
+
+			string[] questOneStats = questOne[0].Split(new string[] { "</div>" }, System.StringSplitOptions.None)[1].Split(new string[] { "<br />" }, System.StringSplitOptions.None);
+
+			for (int j = 0; j < questOneStats.Length - 1; j++)
+			{
+				if (questOneStats [j].Split (new string[] { ":" }, System.StringSplitOptions.None) [0].Trim() == "name")
+				{
+					if (questOneStats [j].Split (new string[] { ":" }, System.StringSplitOptions.None).Length == 2)
+					{
+						if (questOneStats [j].Split (new string[] { ":" }, System.StringSplitOptions.None) [1].Trim () == questName)
+						{
+							for (int k = 1; k < questOne.Length; k++)
+							{
+								StartCoroutine(ImageDownloader (questOne, k));
+							}
+								
+							if (questOne.Length <= 3) explorationCard.transform.GetChild (3).GetComponent<SpriteRenderer> ().sprite = standardOverlordTurn [Random.Range (0, standardOverlordTurn.Count)];
+						}
+					}
+				}
+			}
+		}
+
+		baseGameUniqueQuestsSpace.Remove (questName);
+		baseGameUniqueQuestsMonster.Remove (questName);
+		nullUniqueQuestsSpace.Remove (questName);
+		nullUniqueQuestsMonster.Remove (questName);
+	}
+
+	IEnumerator ImageDownloader(string[] questOne, int k)
+	{
+		WWW www = new WWW(questOne[k].Split(new string[] { "//" }, System.StringSplitOptions.None)[1].Split(new string[] { "_t" }, System.StringSplitOptions.None)[0] + ".png");
+
+		yield return www;
+
+		texture [k] = www.texture;
+
+		explorationCard.transform.GetChild (k).GetComponent<SpriteRenderer> ().sprite = Sprite.Create (texture [k], new Rect (0f, 0f, 360f, 619f), new Vector2 (0.5f, 0.5f), 72f);
 	}
 
 	void MakeTokens ()
@@ -3308,6 +3452,50 @@ public class mapRandomizer : MonoBehaviour {
 		int randomNumber = Random.Range(0,spawn1x1.Count);
 		newSearchToken.transform.localPosition = spawn1x1[randomNumber];
 		spawn1x1.Remove (spawn1x1 [randomNumber]);
+	}
+
+	void MakeTokensFromWWW ()
+	{
+		for (int i = 1; i < allData.Length; i++)
+		{
+			string[] questOne = allData[i].Split(new string[] { "<div >" }, System.StringSplitOptions.None);
+
+			string[] questOneStats = questOne[0].Split(new string[] { "</div>" }, System.StringSplitOptions.None)[1].Split(new string[] { "<br />" }, System.StringSplitOptions.None);
+
+			for (int j = 0; j < questOneStats.Length - 1; j++)
+			{
+				if (questOneStats [j].Split (new string[] { ":" }, System.StringSplitOptions.None) [0].Trim() == "name")
+				{
+					if (questOneStats [j].Split (new string[] { ":" }, System.StringSplitOptions.None).Length == 2)
+					{
+						if (questOneStats [j].Split (new string[] { ":" }, System.StringSplitOptions.None) [1].Trim () == currentQuest)
+						{
+							for (int k = 0; k < questOneStats.Length - 1; k++)
+							{
+								if (questOneStats [k].Split (new string[] { ":" }, System.StringSplitOptions.None) [0].Trim() == "token")
+								{
+									if (questOneStats [k].Split (new string[] { ":" }, System.StringSplitOptions.None).Length == 2)
+									{
+										foreach (GameObject token in tokens)
+										{
+											if (token.name == questOneStats [k].Split (new string[] { ":" }, System.StringSplitOptions.None) [1].Trim ()) MakeToken (token);
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		if (spawn1x1.Count >= 4)
+		{
+			for(int i = 0; i < 4; i++)
+			{
+				MakeToken (tokens [i]);
+			}
+		}
 	}
 
 	void MakeActivationCardLayouts ()

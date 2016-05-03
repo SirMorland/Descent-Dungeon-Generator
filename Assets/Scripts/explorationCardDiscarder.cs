@@ -3,7 +3,7 @@ using System.Collections;
 
 public class explorationCardDiscarder : MonoBehaviour {
 	public Sprite[] explorationCardColor;
-	public Sprite hourGlassBnW;
+	public Sprite[] hourglass;
 	public bool isActive;
 
 	// Use this for initialization
@@ -25,17 +25,13 @@ public class explorationCardDiscarder : MonoBehaviour {
 			{
 				isActive = false;
 				GetComponent<SpriteRenderer> ().sprite = explorationCardColor [1];
-				if (transform.GetChild (3).GetComponent<SpriteRenderer> ().sprite.name == "advanceDoomBy1" ||
-				   transform.GetChild (3).GetComponent<SpriteRenderer> ().sprite.name == "advanceFateBy1")
-				{
-					transform.GetChild (4).GetComponent<SpriteRenderer> ().sprite = hourGlassBnW;
-				}
+				transform.GetChild (4).GetComponent<SpriteRenderer> ().sprite = hourglass[1];
 			}
 			if (currentActiveStatus == false)
 			{
 				isActive = true;
 				GetComponent<SpriteRenderer> ().sprite = explorationCardColor [0];
-				transform.GetChild (4).GetComponent<SpriteRenderer> ().sprite = null;
+				transform.GetChild (4).GetComponent<SpriteRenderer> ().sprite = hourglass[0];
 			}
 		}
 	
