@@ -27,6 +27,7 @@ public class mapRandomizer : MonoBehaviour {
 	public GameObject explorationCard;
 	public GameObject afterSetup;
 	public GameObject hourglass;
+	public GameObject twoActions;
 
 	bool isItOut;
 	bool inMainScreen;
@@ -61,6 +62,7 @@ public class mapRandomizer : MonoBehaviour {
 	public GameObject nameText;
 	public GameObject questText;
 	public GameObject afterSetupText;
+	public GameObject firstActionText;
 	public GameObject hourglassTimeText;
 	public GameObject hourglassOverlordTurnText;
 	public GameObject overlordTurnText;
@@ -159,6 +161,12 @@ public class mapRandomizer : MonoBehaviour {
 		monstersAttackType.Add ("Spider", "melee");
 		monstersAttackType.Add ("Goblin", "ranged");
 		monstersAttackType.Add ("Zombie", "melee");
+		monstersAttackType.Add ("Lieutenant-Token-1", "melee");
+		monstersAttackType.Add ("Lieutenant-Token-2", "melee");
+		monstersAttackType.Add ("Lieutenant-Token-3", "melee");
+		monstersAttackType.Add ("Lieutenant-Token-4", "ranged");
+		monstersAttackType.Add ("Lieutenant-Token-5", "melee");
+		monstersAttackType.Add ("Lieutenant-Token-6", "ranged");
 
 		try
 		{
@@ -227,11 +235,13 @@ public class mapRandomizer : MonoBehaviour {
 				nameText.GetComponent<Text> ().text = "";
 				questText.GetComponent<Text> ().text = "";
 				afterSetupText.GetComponent<Text> ().text = "";
+				firstActionText.GetComponent<Text> ().text = "";
 				hourglassTimeText.GetComponent<Text> ().text = "";
 				hourglassOverlordTurnText.GetComponent<Text> ().text = "";
 				overlordTurnText.GetComponent<Text> ().text = "";
 				afterSetup.SetActive (false);
 				hourglass.SetActive (false);
+				twoActions.SetActive (false);
 
 
 				MakeProps ();
@@ -280,11 +290,13 @@ public class mapRandomizer : MonoBehaviour {
 				nameText.GetComponent<Text> ().text = "";
 				questText.GetComponent<Text> ().text = "";
 				afterSetupText.GetComponent<Text> ().text = "";
+				firstActionText.GetComponent<Text> ().text = "";
 				hourglassTimeText.GetComponent<Text> ().text = "";
 				hourglassOverlordTurnText.GetComponent<Text> ().text = "";
 				overlordTurnText.GetComponent<Text> ().text = "";
 				afterSetup.SetActive (false);
 				hourglass.SetActive (false);
+				twoActions.SetActive (false);
 
 				MakeProps ();
 
@@ -370,36 +382,15 @@ public class mapRandomizer : MonoBehaviour {
 					activateCards [i].transform.position = new Vector3 (i / 2 * 8f, -12.5f - i % 2 * 5f, 0f);
 				}
 			}
-			if (activateCards.Count >= 3 && activateCards.Count <= 4 && backButton.transform.position.x < -11)
+
+			int helpNumber = -(activateCards.Count + 1) / 2 * 8 + 5;
+
+			if (activateCards.Count >= 3 && backButton.transform.position.x < helpNumber)
 			{
-				backButton.transform.position = new Vector3 (-11f, backButton.transform.position.y, backButton.transform.position.z);
+				backButton.transform.position = new Vector3 (helpNumber, backButton.transform.position.y, backButton.transform.position.z);
 
 				for (int i = 0; i < activateCards.Count; i++) {
-					activateCards [i].transform.position = new Vector3 (i / 2 * 8f - 4f, -12.5f - i % 2 * 5f, 0f);
-				}
-			}
-			if (activateCards.Count >= 5 && activateCards.Count <= 6 && backButton.transform.position.x < -19)
-			{
-				backButton.transform.position = new Vector3 (-19f, backButton.transform.position.y, backButton.transform.position.z);
-
-				for (int i = 0; i < activateCards.Count; i++) {
-					activateCards [i].transform.position = new Vector3 (i / 2 * 8f - 12f, -12.5f - i % 2 * 5f, 0f);
-				}
-			}
-			if (activateCards.Count >= 7 && activateCards.Count <= 8 && backButton.transform.position.x < -27)
-			{
-				backButton.transform.position = new Vector3 (-27f, backButton.transform.position.y, backButton.transform.position.z);
-
-				for (int i = 0; i < activateCards.Count; i++) {
-					activateCards [i].transform.position = new Vector3 (i / 2 * 8f - 20f, -12.5f - i % 2 * 5f, 0f);
-				}
-			}
-			if (activateCards.Count >= 9 && activateCards.Count <= 10 && backButton.transform.position.x < -35)
-			{
-				backButton.transform.position = new Vector3 (-35f, backButton.transform.position.y, backButton.transform.position.z);
-
-				for (int i = 0; i < activateCards.Count; i++) {
-					activateCards [i].transform.position = new Vector3 (i / 2 * 8f - 28f, -12.5f - i % 2 * 5f, 0f);
+					activateCards [i].transform.position = new Vector3 (i / 2 * 8f + helpNumber + 7f, -12.5f - i % 2 * 5f, 0f);
 				}
 			}
 
@@ -3270,7 +3261,14 @@ public class mapRandomizer : MonoBehaviour {
 		{
 			if (standardQuestsSpace [key] <= spawn1x1.Count)
 			{
-				possibleQuests.Add (key);
+				if (!standardQuestsMonster.ContainsKey (key))
+				{
+					possibleQuests.Add (key);
+				}
+				else
+				{
+					if (standardQuestsMonster [key] == currentMonster) possibleQuests.Add (key);
+				}
 			}
 		}
 
@@ -3278,7 +3276,14 @@ public class mapRandomizer : MonoBehaviour {
 		{
 			if (standardQuestsMonster [key] == currentMonster)
 			{
-				possibleQuests.Add (key);
+				if (!standardQuestsSpace.ContainsKey (key))
+				{
+					possibleQuests.Add (key);
+				}
+				else
+				{
+					if (standardQuestsSpace [key] <= spawn1x1.Count) possibleQuests.Add (key);
+				}
 			}
 		}
 
@@ -3286,7 +3291,14 @@ public class mapRandomizer : MonoBehaviour {
 		{
 			if (baseGameUniqueQuestsSpace [key] <= spawn1x1.Count)
 			{
-				possibleQuests.Add (key);
+				if (!baseGameUniqueQuestsMonster.ContainsKey (key))
+				{
+					possibleQuests.Add (key);
+				}
+				else
+				{
+					if (baseGameUniqueQuestsMonster [key] == currentMonster) possibleQuests.Add (key);
+				}
 			}
 		}
 
@@ -3294,7 +3306,14 @@ public class mapRandomizer : MonoBehaviour {
 		{
 			if (baseGameUniqueQuestsMonster [key] == currentMonster)
 			{
-				possibleQuests.Add (key);
+				if (!baseGameUniqueQuestsSpace.ContainsKey (key))
+				{
+					possibleQuests.Add (key);
+				}
+				else
+				{
+					if (baseGameUniqueQuestsSpace [key] <= spawn1x1.Count) possibleQuests.Add (key);
+				}
 			}
 		}
 
@@ -3302,7 +3321,14 @@ public class mapRandomizer : MonoBehaviour {
 		{
 			if (nullUniqueQuestsSpace [key] <= spawn1x1.Count)
 			{
-				possibleQuests.Add (key);
+				if (!nullUniqueQuestsMonster.ContainsKey (key))
+				{
+					possibleQuests.Add (key);
+				}
+				else
+				{
+					if (nullUniqueQuestsMonster [key] == currentMonster) possibleQuests.Add (key);
+				}
 			}
 		}
 
@@ -3310,7 +3336,14 @@ public class mapRandomizer : MonoBehaviour {
 		{
 			if (nullUniqueQuestsMonster [key] == currentMonster)
 			{
-				possibleQuests.Add (key);
+				if (!nullUniqueQuestsSpace.ContainsKey (key))
+				{
+					possibleQuests.Add (key);
+				}
+				else
+				{
+					if (nullUniqueQuestsSpace [key] <= spawn1x1.Count) possibleQuests.Add (key);
+				}
 			}
 		}
 
@@ -3358,9 +3391,9 @@ public class mapRandomizer : MonoBehaviour {
 
 			for (int j = 0; j < oneQuest.Length; j++)
 			{
-				if (oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None) [0].Trim() == "name")
+				if (oneQuest [j].Split (new string[] { ":" }, 2, System.StringSplitOptions.None) [0].Trim() == "name")
 				{
-					if(oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None).Length == 2) questName = oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None) [1].Trim();
+					if(oneQuest [j].Split (new string[] { ":" }, 2, System.StringSplitOptions.None).Length == 2) questName = oneQuest [j].Split (new string[] { ":" }, 2, System.StringSplitOptions.None) [1].Trim();
 				}
 			}
 
@@ -3368,34 +3401,34 @@ public class mapRandomizer : MonoBehaviour {
 
 			for (int j = 0; j < oneQuest.Length; j++)
 			{
-				if (oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None) [0].Trim() == "category")
+				if (oneQuest [j].Split (new string[] { ":" }, 2, System.StringSplitOptions.None) [0].Trim() == "category")
 				{
-					if (oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None).Length == 2) category = oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None) [1].Trim ();
+					if (oneQuest [j].Split (new string[] { ":" }, 2, System.StringSplitOptions.None).Length == 2) category = oneQuest [j].Split (new string[] { ":" }, 2, System.StringSplitOptions.None) [1].Trim ();
 				}
 			}
 
 			for (int j = 0; j < oneQuest.Length; j++)
 			{
-				if (oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None) [0].Trim() == "spaceRequirement")
+				if (oneQuest [j].Split (new string[] { ":" }, 2, System.StringSplitOptions.None) [0].Trim() == "spaceRequirement")
 				{
-					if (oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None).Length == 2) {
+					if (oneQuest [j].Split (new string[] { ":" }, 2, System.StringSplitOptions.None).Length == 2) {
 						int spaceRequirement = 100;
-						int.TryParse (oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None) [1].Trim (), out spaceRequirement);
-						if (category == "standard") standardQuestsSpace.Add (questName, spaceRequirement);
-						if (category == "baseGame") baseGameUniqueQuestsSpace.Add (questName, spaceRequirement);
-						if (category == "null") nullUniqueQuestsSpace.Add (questName, spaceRequirement);
+						int.TryParse (oneQuest [j].Split (new string[] { ":" }, 2, System.StringSplitOptions.None) [1].Trim (), out spaceRequirement);
+						if (category == "standard" && !standardQuestsSpace.ContainsKey(questName)) standardQuestsSpace.Add (questName, spaceRequirement);
+						if (category == "baseGame" && !baseGameUniqueQuestsSpace.ContainsKey(questName)) baseGameUniqueQuestsSpace.Add (questName, spaceRequirement);
+						if (category == "null" && !nullUniqueQuestsSpace.ContainsKey(questName)) nullUniqueQuestsSpace.Add (questName, spaceRequirement);
 					}
 				}
 			}
 
 			for (int j = 0; j < oneQuest.Length - 1; j++)
 			{
-				if (oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None) [0].Trim() == "monsterRequirement")
+				if (oneQuest [j].Split (new string[] { ":" }, 2, System.StringSplitOptions.None) [0].Trim() == "monsterRequirement")
 				{
-					if (oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None).Length == 2) {
-						if (category == "standard") standardQuestsMonster.Add (questName, oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None) [1].Trim());
-						if (category == "baseGame") baseGameUniqueQuestsMonster.Add (questName, oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None) [1].Trim());
-						if (category == "null") nullUniqueQuestsMonster.Add (questName, oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None) [1].Trim());
+					if (oneQuest [j].Split (new string[] { ":" }, 2, System.StringSplitOptions.None).Length == 2) {
+						if (category == "standard" && !standardQuestsMonster.ContainsKey(questName)) standardQuestsMonster.Add (questName, oneQuest [j].Split (new string[] { ":" }, 2, System.StringSplitOptions.None) [1].Trim());
+						if (category == "baseGame" && !baseGameUniqueQuestsMonster.ContainsKey(questName)) baseGameUniqueQuestsMonster.Add (questName, oneQuest [j].Split (new string[] { ":" }, 2, System.StringSplitOptions.None) [1].Trim());
+						if (category == "null" && !nullUniqueQuestsMonster.ContainsKey(questName)) nullUniqueQuestsMonster.Add (questName, oneQuest [j].Split (new string[] { ":" }, 2, System.StringSplitOptions.None) [1].Trim());
 					}
 				}
 			}
@@ -3412,51 +3445,59 @@ public class mapRandomizer : MonoBehaviour {
 
 			for (int j = 0; j < oneQuest.Length; j++)
 			{
-				if (oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None) [0].Trim() == "name")
+				if (oneQuest [j].Split (new string[] { ":" }, 2, System.StringSplitOptions.None) [0].Trim() == "name")
 				{
-					if (oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None).Length == 2)
+					if (oneQuest [j].Split (new string[] { ":" }, 2, System.StringSplitOptions.None).Length == 2)
 					{
-						if (oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None) [1].Trim () == questName)
+						if (oneQuest [j].Split (new string[] { ":" }, 2, System.StringSplitOptions.None) [1].Trim () == questName)
 						{
-							nameText.GetComponent<Text> ().text = oneQuest [j].Split (new string[] { ":" }, System.StringSplitOptions.None) [1].Trim ();
+							nameText.GetComponent<Text> ().text = oneQuest [j].Split (new string[] { ":" }, 2, System.StringSplitOptions.None) [1].Trim ();
 
 							for (int k = 0; k < oneQuest.Length; k++)
 							{
-								if (oneQuest [k].Split (new string[] { ":" }, System.StringSplitOptions.None) [0].Trim () == "quest")
+								if (oneQuest [k].Split (new string[] { ":" }, 2, System.StringSplitOptions.None) [0].Trim () == "quest")
 								{
-									if (oneQuest [k].Split (new string[] { ":" }, System.StringSplitOptions.None).Length == 2)
+									if (oneQuest [k].Split (new string[] { ":" }, 2, System.StringSplitOptions.None).Length == 2)
 									{
-										questText.GetComponent<Text> ().text = oneQuest [k].Split (new string[] { ":" }, System.StringSplitOptions.None) [1].Trim ().Replace("/","\n");
+										questText.GetComponent<Text> ().text = oneQuest [k].Split (new string[] { ":" }, 2, System.StringSplitOptions.None) [1].Trim ().Replace("/","\n");
 									}
 								}
-								if (oneQuest [k].Split (new string[] { ":" }, System.StringSplitOptions.None) [0].Trim () == "afterSetup")
+								if (oneQuest [k].Split (new string[] { ":" }, 2, System.StringSplitOptions.None) [0].Trim () == "afterSetup")
 								{
-									if (oneQuest [k].Split (new string[] { ":" }, System.StringSplitOptions.None).Length == 2)
+									if (oneQuest [k].Split (new string[] { ":" }, 2, System.StringSplitOptions.None).Length == 2)
 									{
-										afterSetupText.GetComponent<Text> ().text = "AFTER SETUP: " + oneQuest [k].Split (new string[] { ":" }, System.StringSplitOptions.None) [1].Trim ();
+										afterSetupText.GetComponent<Text> ().text = "AFTER SETUP: " + oneQuest [k].Split (new string[] { ":" }, 2, System.StringSplitOptions.None) [1].Trim ();
 										afterSetup.SetActive (true);
 									}
 								}
-								if (oneQuest [k].Split (new string[] { ":" }, System.StringSplitOptions.None) [0].Trim () == "hourglassTime")
+								if (oneQuest [k].Split (new string[] { ":" }, 2, System.StringSplitOptions.None) [0].Trim () == "firstAction")
 								{
-									if (oneQuest [k].Split (new string[] { ":" }, System.StringSplitOptions.None).Length == 2)
+									if (oneQuest [k].Split (new string[] { ":" }, 2, System.StringSplitOptions.None).Length == 2)
 									{
-										hourglassTimeText.GetComponent<Text> ().text = oneQuest [k].Split (new string[] { ":" }, System.StringSplitOptions.None) [1].Trim ();
+										firstActionText.GetComponent<Text> ().text = oneQuest [k].Split (new string[] { ":" }, 2, System.StringSplitOptions.None) [1].Trim ();
+										twoActions.SetActive (true);
+									}
+								}
+								if (oneQuest [k].Split (new string[] { ":" }, 2, System.StringSplitOptions.None) [0].Trim () == "hourglassTime")
+								{
+									if (oneQuest [k].Split (new string[] { ":" }, 2, System.StringSplitOptions.None).Length == 2)
+									{
+										hourglassTimeText.GetComponent<Text> ().text = oneQuest [k].Split (new string[] { ":" }, 2, System.StringSplitOptions.None) [1].Trim ();
 										hourglass.SetActive (true);
 									}
 								}
-								if (oneQuest [k].Split (new string[] { ":" }, System.StringSplitOptions.None) [0].Trim () == "hourglassOverlordTurn")
+								if (oneQuest [k].Split (new string[] { ":" }, 2, System.StringSplitOptions.None) [0].Trim () == "hourglassOverlordTurn")
 								{
-									if (oneQuest [k].Split (new string[] { ":" }, System.StringSplitOptions.None).Length == 2)
+									if (oneQuest [k].Split (new string[] { ":" }, 2, System.StringSplitOptions.None).Length == 2)
 									{
-										hourglassOverlordTurnText.GetComponent<Text> ().text = oneQuest [k].Split (new string[] { ":" }, System.StringSplitOptions.None) [1].Trim ();
+										hourglassOverlordTurnText.GetComponent<Text> ().text = oneQuest [k].Split (new string[] { ":" }, 2, System.StringSplitOptions.None) [1].Trim ();
 									}
 								}
-								if (oneQuest [k].Split (new string[] { ":" }, System.StringSplitOptions.None) [0].Trim () == "overlordTurn")
+								if (oneQuest [k].Split (new string[] { ":" }, 2, System.StringSplitOptions.None) [0].Trim () == "overlordTurn")
 								{
-									if (oneQuest [k].Split (new string[] { ":" }, System.StringSplitOptions.None).Length == 2)
+									if (oneQuest [k].Split (new string[] { ":" }, 2, System.StringSplitOptions.None).Length == 2)
 									{
-										overlordTurnText.GetComponent<Text> ().text = oneQuest [k].Split (new string[] { ":" }, System.StringSplitOptions.None) [1].Trim ();
+										overlordTurnText.GetComponent<Text> ().text = oneQuest [k].Split (new string[] { ":" }, 2, System.StringSplitOptions.None) [1].Trim ();
 									}
 								}
 							}
@@ -3492,33 +3533,51 @@ public class mapRandomizer : MonoBehaviour {
 		int randomNumber = Random.Range(0,spawn1x1.Count);
 		newSearchToken.transform.localPosition = spawn1x1[randomNumber];
 		spawn1x1.Remove (spawn1x1 [randomNumber]);
+
+		if (token.name.Contains ("Lieutenant"))
+		{
+			bool isAlready = false;
+			foreach (GameObject activateCard in activateCards)
+			{
+				if (activateCard.name.Substring (8,activateCard.name.Length - 15) == token.name) isAlready = true;
+			}
+			if (isAlready == false)
+			{
+				foreach (GameObject activateCard in allActivateCards)
+				{
+					if (activateCard.name.Substring (8) == token.name) MakeActivationCardLayout (activateCard);
+				}
+			}
+		}
 	}
 
 	void MakeTokensFromWWW ()
 	{
+		bool searchTokensAdded = false;
+
 		for (int i = 1; i < allData.Length; i++)
 		{
-			string[] questOne = allData[i].Split(new string[] { "<div >" }, System.StringSplitOptions.None);
+			string[] oneQuest = allData[i].Split(new string[] { "</div>" }, System.StringSplitOptions.None)[1].Split(new string[] { "</td>" }, System.StringSplitOptions.None)[0].Split(new string[] { "<br />" }, System.StringSplitOptions.None);
 
-			string[] questOneStats = questOne[0].Split(new string[] { "</div>" }, System.StringSplitOptions.None)[1].Split(new string[] { "<br />" }, System.StringSplitOptions.None);
-
-			for (int j = 0; j < questOneStats.Length - 1; j++)
+			for (int j = 0; j < oneQuest.Length; j++)
 			{
-				if (questOneStats [j].Split (new string[] { ":" }, System.StringSplitOptions.None) [0].Trim() == "name")
+				if (oneQuest [j].Split (new string[] { ":" }, 2, System.StringSplitOptions.None) [0].Trim() == "name")
 				{
-					if (questOneStats [j].Split (new string[] { ":" }, System.StringSplitOptions.None).Length == 2)
+					if (oneQuest [j].Split (new string[] { ":" }, 2, System.StringSplitOptions.None).Length == 2)
 					{
-						if (questOneStats [j].Split (new string[] { ":" }, System.StringSplitOptions.None) [1].Trim () == currentQuest)
+						if (oneQuest [j].Split (new string[] { ":" }, 2, System.StringSplitOptions.None) [1].Trim () == currentQuest)
 						{
-							for (int k = 0; k < questOneStats.Length - 1; k++)
+							for (int k = 0; k < oneQuest.Length - 1; k++)
 							{
-								if (questOneStats [k].Split (new string[] { ":" }, System.StringSplitOptions.None) [0].Trim() == "token")
+								if (oneQuest [k].Split (new string[] { ":" }, 2, System.StringSplitOptions.None) [0].Trim() == "token")
 								{
-									if (questOneStats [k].Split (new string[] { ":" }, System.StringSplitOptions.None).Length == 2)
+									if (oneQuest [k].Split (new string[] { ":" }, 2, System.StringSplitOptions.None).Length == 2)
 									{
+										if (oneQuest [k].Split (new string[] { ":" }, 2, System.StringSplitOptions.None) [1].Trim ().Contains ("Search-Token") == true) searchTokensAdded = true;
+
 										foreach (GameObject token in tokens)
 										{
-											if (token.name == questOneStats [k].Split (new string[] { ":" }, System.StringSplitOptions.None) [1].Trim ()) MakeToken (token);
+											if (token.name == oneQuest [k].Split (new string[] { ":" }, 2, System.StringSplitOptions.None) [1].Trim ()) MakeToken (token);
 										}
 									}
 								}
@@ -3529,12 +3588,13 @@ public class mapRandomizer : MonoBehaviour {
 			}
 		}
 
-		if (spawn1x1.Count >= 4)
+		if (spawn1x1.Count >= 4 && searchTokensAdded == false)
 		{
-			for(int i = 0; i < 4; i++)
-			{
-				MakeToken (tokens [i]);
-			}
+			MakeToken (tokens [1]);
+			MakeToken (tokens [1]);
+			MakeToken (tokens [2]);
+			MakeToken (tokens [3]);
+
 		}
 	}
 
