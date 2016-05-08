@@ -196,19 +196,21 @@ public class mapRandomizer : MonoBehaviour {
 		mapsIn.Add (baseGameIn [0]);
 		*/
 	}
-
+		
 	void Update () {
-		if ((float)Screen.width / (float)Screen.height <= 1.6) Camera.main.orthographicSize = 8f / ((float)Screen.width / (float)Screen.height);
-		else Camera.main.orthographicSize = 5f;
+		if ((float)Screen.width / (float)Screen.height <= 1.6)
+			Camera.main.orthographicSize = 8f / ((float)Screen.width / (float)Screen.height);
+		else
+			Camera.main.orthographicSize = 5f;
 
 		int numberOfRooms = createdRooms;
 		if (isItOut == true) {
 			if (Vector3.Distance (Camera.main.ScreenToWorldPoint (Input.mousePosition) + new Vector3 (0f, 0f, 9.5f), exploreButton.transform.position) <= 1.0f
-				&& Input.GetMouseButtonUp (0) && mapsOut.Count <= 0 && explorationCard.GetComponent<explorationCardDiscarder>().isActive == false) {
+			     && Input.GetMouseButtonUp (0) && mapsOut.Count <= 0 && explorationCard.GetComponent<explorationCardDiscarder> ().isActive == false) {
 				SceneManager.LoadScene (0);
 			}
 			if (Vector3.Distance (Camera.main.ScreenToWorldPoint (Input.mousePosition) + new Vector3 (0f, 0f, 9.5f), exploreButton.transform.position) <= 1.0f
-				&& Input.GetMouseButtonUp (0) && mapsOut.Count > 0 && explorationCard.GetComponent<explorationCardDiscarder>().isActive == false) {
+			     && Input.GetMouseButtonUp (0) && mapsOut.Count > 0 && explorationCard.GetComponent<explorationCardDiscarder> ().isActive == false) {
 				foreach (Transform child in map.transform) {
 					Destroy (child.gameObject);
 				}
@@ -254,16 +256,17 @@ public class mapRandomizer : MonoBehaviour {
 				MakeTokensFromWWW ();
 				MakeActivationCardLayouts ();
 
-				if (mapsOut.Count == 0) exploreButton.GetComponent<SpriteRenderer> ().sprite = blackExploreButton;
+				if (mapsOut.Count == 0)
+					exploreButton.GetComponent<SpriteRenderer> ().sprite = blackExploreButton;
 			}
 		}
 		if (isItOut == false && numberOfRooms == createdRooms) {
 			if (Vector3.Distance (Camera.main.ScreenToWorldPoint (Input.mousePosition) + new Vector3 (0f, 0f, 10f), exploreButton.transform.position) <= 1.0f
-				&& Input.GetMouseButtonUp (0) && mapsIn.Count <= 0 && explorationCard.GetComponent<explorationCardDiscarder>().isActive == false) {
+			     && Input.GetMouseButtonUp (0) && mapsIn.Count <= 0 && explorationCard.GetComponent<explorationCardDiscarder> ().isActive == false) {
 				SceneManager.LoadScene (0);
 			}
 			if (Vector3.Distance (Camera.main.ScreenToWorldPoint (Input.mousePosition) + new Vector3 (0f, 0f, 10f), exploreButton.transform.position) <= 1.0f
-				&& Input.GetMouseButtonUp (0) && mapsIn.Count > 0 && explorationCard.GetComponent<explorationCardDiscarder>().isActive == false) {
+			     && Input.GetMouseButtonUp (0) && mapsIn.Count > 0 && explorationCard.GetComponent<explorationCardDiscarder> ().isActive == false) {
 				foreach (Transform child in map.transform) {
 					Destroy (child.gameObject);
 				}
@@ -308,13 +311,13 @@ public class mapRandomizer : MonoBehaviour {
 				MakeTokensFromWWW ();
 				MakeActivationCardLayouts ();
 
-				if (mapsIn.Count == 0) exploreButton.GetComponent<SpriteRenderer> ().sprite = blackExploreButton;
+				if (mapsIn.Count == 0)
+					exploreButton.GetComponent<SpriteRenderer> ().sprite = blackExploreButton;
 			}
 		}
 
 		if (Vector3.Distance (Camera.main.ScreenToWorldPoint (Input.mousePosition) + new Vector3 (0f, 0f, 10f), activateButton.transform.position) <= 1.0f
-		    && Input.GetMouseButtonUp (0))
-		{
+		     && Input.GetMouseButtonUp (0)) {
 			inMainScreen = false;
 			speed = 0f;
 			backButton.transform.position = new Vector3 (-7f, backButton.transform.position.y, backButton.transform.position.z);
@@ -325,48 +328,45 @@ public class mapRandomizer : MonoBehaviour {
 			MakeActivationCardTexts ();
 		}
 		if (Vector3.Distance (Camera.main.ScreenToWorldPoint (Input.mousePosition) + new Vector3 (0f, 0f, 10f), backButton.transform.position) <= 1.0f
-			&& Input.GetMouseButtonUp (0)) inMainScreen = true;
+		     && Input.GetMouseButtonUp (0))
+			inMainScreen = true;
 
-		if (inMainScreen == true && Camera.main.transform.position.y < 0)
-		{
+		if (inMainScreen == true && Camera.main.transform.position.y < 0) {
 			Camera.main.transform.Translate (0f, 50f * Time.deltaTime, 0f);
-			if (Camera.main.transform.position.y > 0) Camera.main.transform.position = new Vector3 (0f, 0f, -10f);
+			if (Camera.main.transform.position.y > 0)
+				Camera.main.transform.position = new Vector3 (0f, 0f, -10f);
 		}
 
-		if (inMainScreen == false && Camera.main.transform.position.y > -15)
-		{
+		if (inMainScreen == false && Camera.main.transform.position.y > -15) {
 			Camera.main.transform.Translate (0f, -50f * Time.deltaTime, 0f);
-			if (Camera.main.transform.position.y < -15) Camera.main.transform.position = new Vector3 (0f, -15f, -10f);
+			if (Camera.main.transform.position.y < -15)
+				Camera.main.transform.position = new Vector3 (0f, -15f, -10f);
 		}
 
-		if (Camera.main.transform.position.y == -15)
-		{
-			if (Input.GetMouseButtonDown (0)) oldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-			if (Input.GetMouseButton (0))
-			{
+		if (Camera.main.transform.position.y == -15) {
+			if (Input.GetMouseButtonDown (0))
+				oldPos = Camera.main.ScreenToWorldPoint (Input.mousePosition);
+			if (Input.GetMouseButton (0)) {
 				speed = Camera.main.ScreenToWorldPoint (Input.mousePosition).x - oldPos.x;
 				
-				backButton.transform.position =  new Vector3 (backButton.transform.position.x + Camera.main.ScreenToWorldPoint(Input.mousePosition).x - oldPos.x, backButton.transform.position.y, backButton.transform.position.z);
+				backButton.transform.position = new Vector3 (backButton.transform.position.x + Camera.main.ScreenToWorldPoint (Input.mousePosition).x - oldPos.x, backButton.transform.position.y, backButton.transform.position.z);
 
-				foreach (GameObject activateCard in activateCards)
-				{
-					activateCard.transform.position = new Vector3 (activateCard.transform.position.x + Camera.main.ScreenToWorldPoint(Input.mousePosition).x - oldPos.x, activateCard.transform.position.y, activateCard.transform.position.z);
+				foreach (GameObject activateCard in activateCards) {
+					activateCard.transform.position = new Vector3 (activateCard.transform.position.x + Camera.main.ScreenToWorldPoint (Input.mousePosition).x - oldPos.x, activateCard.transform.position.y, activateCard.transform.position.z);
 				}
 			}
 
 			speed *= 0.95f;
 
-			if (!Input.GetMouseButton(0) && speed != 0)
-			{
-				backButton.transform.Translate(new Vector3 (speed, 0f, 0f));
+			if (!Input.GetMouseButton (0) && speed != 0) {
+				backButton.transform.Translate (new Vector3 (speed, 0f, 0f));
 
 				for (int i = 0; i < activateCards.Count; i++) {
-					activateCards [i].transform.Translate(new Vector3 (speed, 0f, 0f));
+					activateCards [i].transform.Translate (new Vector3 (speed, 0f, 0f));
 				}
 			}
 
-			if (backButton.transform.position.x > -7)
-			{
+			if (backButton.transform.position.x > -7) {
 				backButton.transform.position = new Vector3 (-7f, backButton.transform.position.y, backButton.transform.position.z);
 
 				for (int i = 0; i < activateCards.Count; i++) {
@@ -374,8 +374,7 @@ public class mapRandomizer : MonoBehaviour {
 				}
 			}
 
-			if (activateCards.Count <= 2 && backButton.transform.position.x < -7)
-			{
+			if (activateCards.Count <= 2 && backButton.transform.position.x < -7) {
 				backButton.transform.position = new Vector3 (-7f, backButton.transform.position.y, backButton.transform.position.z);
 
 				for (int i = 0; i < activateCards.Count; i++) {
@@ -385,8 +384,7 @@ public class mapRandomizer : MonoBehaviour {
 
 			int helpNumber = -(activateCards.Count + 1) / 2 * 8 + 5;
 
-			if (activateCards.Count >= 3 && backButton.transform.position.x < helpNumber)
-			{
+			if (activateCards.Count >= 3 && backButton.transform.position.x < helpNumber) {
 				backButton.transform.position = new Vector3 (helpNumber, backButton.transform.position.y, backButton.transform.position.z);
 
 				for (int i = 0; i < activateCards.Count; i++) {
@@ -394,7 +392,7 @@ public class mapRandomizer : MonoBehaviour {
 				}
 			}
 
-			oldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+			oldPos = Camera.main.ScreenToWorldPoint (Input.mousePosition);
 		}
 	}
 		
