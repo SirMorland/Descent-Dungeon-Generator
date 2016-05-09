@@ -4,6 +4,8 @@ using System.Collections;
 public class explorationCardDiscarder : MonoBehaviour {
 	public Sprite[] explorationCardColor;
 	public Sprite[] hourglass;
+    public Sprite[] types;
+    public Sprite[] typesBlack;
 	public bool isActive;
 
 	// Use this for initialization
@@ -25,13 +27,21 @@ public class explorationCardDiscarder : MonoBehaviour {
 			{
 				isActive = false;
 				GetComponent<SpriteRenderer> ().sprite = explorationCardColor [1];
-				transform.GetChild (1).GetComponent<SpriteRenderer> ().sprite = hourglass[1];
+                transform.GetChild (1).GetComponent<SpriteRenderer> ().sprite = hourglass[1];
+                for (int i = 0; i < types.Length; i++)
+                {
+                    if (types[i] == transform.GetChild(3).GetComponent<SpriteRenderer>().sprite) transform.GetChild(3).GetComponent<SpriteRenderer>().sprite = typesBlack[i];
+                }
 			}
 			if (currentActiveStatus == false)
 			{
 				isActive = true;
 				GetComponent<SpriteRenderer> ().sprite = explorationCardColor [0];
-				transform.GetChild (1).GetComponent<SpriteRenderer> ().sprite = hourglass[0];
+                transform.GetChild (1).GetComponent<SpriteRenderer> ().sprite = hourglass[0];
+                for (int i = 0; i < typesBlack.Length; i++)
+                {
+                    if (typesBlack[i] == transform.GetChild(3).GetComponent<SpriteRenderer>().sprite) transform.GetChild(3).GetComponent<SpriteRenderer>().sprite = types[i];
+                }
 			}
 		}
 	

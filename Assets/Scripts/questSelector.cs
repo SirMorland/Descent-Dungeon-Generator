@@ -6,6 +6,8 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 public class questSelector : MonoBehaviour {
+    public Vector3 oldPos;
+
     public GameObject startButton;
     public Sprite[] startButtonSprites;
 
@@ -77,10 +79,30 @@ public class questSelector : MonoBehaviour {
 
 	void Update ()
     {
-        if ((float)Screen.width / (float)Screen.height <= 1.6)
-            Camera.main.orthographicSize = 8f / ((float)Screen.width / (float)Screen.height);
-        else
-            Camera.main.orthographicSize = 5f;
+        if ((float)Screen.width / (float)Screen.height <= 1.6) Camera.main.orthographicSize = 8f / ((float)Screen.width / (float)Screen.height);
+        else Camera.main.orthographicSize = 5f;
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            oldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        }
+
+        if (lockedQuest == null && Input.GetMouseButton(0) && Camera.main.ScreenToWorldPoint(Input.mousePosition).x > -4 && Camera.main.ScreenToWorldPoint(Input.mousePosition).x < 1)
+        {
+            expansionCampaignsViewer.transform.Translate(0f, Camera.main.ScreenToWorldPoint(Input.mousePosition).y - oldPos.y, 0f);
+        }
+        if (lockedQuest == null && Input.GetMouseButton(0) && Camera.main.ScreenToWorldPoint(Input.mousePosition).x > 1 && Camera.main.ScreenToWorldPoint(Input.mousePosition).x < 6)
+        {
+            selectedCampaignsViewer.transform.Translate(0f, Camera.main.ScreenToWorldPoint(Input.mousePosition).y - oldPos.y, 0f);
+        }
+
+        if (expansionCampaignsViewer.transform.position.y < 2.5) expansionCampaignsViewer.transform.position = new Vector3 (expansionCampaignsViewer.transform.position.x, 2.5f, expansionCampaignsViewer.transform.position.z);
+        if (selectedCampaignsViewer.transform.position.y < 2.5) selectedCampaignsViewer.transform.position = new Vector3 (selectedCampaignsViewer.transform.position.x, 2.5f, selectedCampaignsViewer.transform.position.z);
+        if(expansionCampaignsViewer.transform.GetChild(0).transform.localPosition.y >= -3.75) expansionCampaignsViewer.transform.position = new Vector3 (expansionCampaignsViewer.transform.position.x, 2.5f, expansionCampaignsViewer.transform.position.z);
+        if(expansionCampaignsViewer.transform.GetChild(0).transform.localPosition.y < -3.75 && expansionCampaignsViewer.transform.GetChild(1).transform.position.y > -5)  expansionCampaignsViewer.transform.position = new Vector3 (expansionCampaignsViewer.transform.position.x, Mathf.Abs(expansionCampaignsViewer.transform.GetChild(1).transform.localPosition.y) - 5f, expansionCampaignsViewer.transform.position.z);
+        if(selectedCampaignsViewer.transform.GetChild(0).transform.localPosition.y >= -3.75) selectedCampaignsViewer.transform.position = new Vector3 (selectedCampaignsViewer.transform.position.x, 2.5f, selectedCampaignsViewer.transform.position.z);
+        if(selectedCampaignsViewer.transform.GetChild(0).transform.localPosition.y < -3.75 && selectedCampaignsViewer.transform.GetChild(1).transform.position.y > -5)  selectedCampaignsViewer.transform.position = new Vector3 (selectedCampaignsViewer.transform.position.x, Mathf.Abs(selectedCampaignsViewer.transform.GetChild(1).transform.localPosition.y) - 5f, selectedCampaignsViewer.transform.position.z);
+
         
         foreach (GameObject box in expansionsBoxes)
         {
@@ -95,10 +117,11 @@ public class questSelector : MonoBehaviour {
             if (Camera.main.ScreenToWorldPoint(Input.mousePosition).x < child.position.x + 2.25 &&
                 Camera.main.ScreenToWorldPoint(Input.mousePosition).x > child.position.x - 2.25 &&
                 Camera.main.ScreenToWorldPoint(Input.mousePosition).y < child.position.y &&
-                Camera.main.ScreenToWorldPoint(Input.mousePosition).y > child.position.y - 1 && Input.GetMouseButtonDown(0))
+                Camera.main.ScreenToWorldPoint(Input.mousePosition).y > child.position.y - 1 && Input.GetMouseButton(0) && Camera.main.ScreenToWorldPoint(Input.mousePosition).x > oldPos.x + 0.1 && lockedQuest == null)
             {
                 lockedQuest = child;
                 lockedQuest.GetComponent<SpriteRenderer>().sortingOrder = 1;
+                lockedQuest.transform.GetChild(0).GetComponent<Canvas>().sortingOrder = 2;
                 lockedQuest.GetComponent<SpriteRenderer>().color = new Color(0.9f, 0.9f, 0.9f, 1f);
             }
         }
@@ -107,19 +130,20 @@ public class questSelector : MonoBehaviour {
             if (Camera.main.ScreenToWorldPoint(Input.mousePosition).x < child.position.x + 2.25 &&
                 Camera.main.ScreenToWorldPoint(Input.mousePosition).x > child.position.x - 2.25 &&
                 Camera.main.ScreenToWorldPoint(Input.mousePosition).y < child.position.y &&
-                Camera.main.ScreenToWorldPoint(Input.mousePosition).y > child.position.y - 1 && Input.GetMouseButtonDown(0))
+                Camera.main.ScreenToWorldPoint(Input.mousePosition).y > child.position.y - 1 && Input.GetMouseButton(0) && Camera.main.ScreenToWorldPoint(Input.mousePosition).x < oldPos.x - 0.1 && lockedQuest == null)
             {
                 lockedQuest = child;
                 lockedQuest.GetComponent<SpriteRenderer>().sortingOrder = 1;
+                lockedQuest.transform.GetChild(0).GetComponent<Canvas>().sortingOrder = 2;
                 lockedQuest.GetComponent<SpriteRenderer>().color = new Color(0.9f, 0.9f, 0.9f, 1f);
             }
         }
 
         if (lockedQuest != null)
         {
-            lockedQuest.position = Camera.main.ScreenToWorldPoint(Input.mousePosition) + new Vector3(0f, 0.5f, 10f);
+            lockedQuest.position = new Vector3(Camera.main.ScreenToWorldPoint(Input.mousePosition).x, Camera.main.ScreenToWorldPoint(Input.mousePosition).y + 0.5f, 0f);
 
-            if (lockedQuest.position.x <= 2.25)
+            if (lockedQuest.position.x <= 1)
             {
                 if (lockedQuest.parent.transform.parent == selectedCampaignsViewer.transform)
                 {
@@ -130,7 +154,7 @@ public class questSelector : MonoBehaviour {
                     RefreshShowCampaignsFromExpansions();
                 }
             }
-            if (lockedQuest.position.x > 2.25)
+            if (lockedQuest.position.x > 1)
             {
                 if (lockedQuest.parent.transform.parent == expansionCampaignsViewer.transform)
                 {
@@ -146,6 +170,7 @@ public class questSelector : MonoBehaviour {
         if (Input.GetMouseButtonUp(0) && lockedQuest != null)
         {
             lockedQuest.GetComponent<SpriteRenderer>().sortingOrder = -2;
+            lockedQuest.transform.GetChild(0).GetComponent<Canvas>().sortingOrder = 0;
             lockedQuest.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 1f);
             lockedQuest = null;
             RefreshShowCampaignsFromExpansions();
@@ -157,6 +182,10 @@ public class questSelector : MonoBehaviour {
 
             if (Vector3.Distance(Camera.main.ScreenToWorldPoint(Input.mousePosition) + new Vector3(0f, 0f, 10f), startButton.transform.position) <= 1.0 && Input.GetMouseButtonUp(0))
             {
+                foreach (GameObject selectedCampaign in selectedCampaigns)
+                {
+                    storage.GetComponent<storage>().selectedCampaigns.Add(selectedCampaign.transform.GetChild(0).GetChild(0).GetComponent<Text>().text);
+                }
                 SceneManager.LoadScene(1);
             }
         }
@@ -164,6 +193,8 @@ public class questSelector : MonoBehaviour {
         {
             startButton.GetComponent<SpriteRenderer>().sprite = startButtonSprites[1];
         }
+
+        oldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 	}
 
     void RefreshShowCampaignsFromExpansions()

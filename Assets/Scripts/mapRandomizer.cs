@@ -2,6 +2,7 @@
 using UnityEngine.SceneManagement;
 using System.Collections;
 using System.Collections.Generic;
+using System.Net;
 using UnityEngine.UI;
 
 public class mapRandomizer : MonoBehaviour {
@@ -119,6 +120,7 @@ public class mapRandomizer : MonoBehaviour {
 	Vector3 oldPos;
 	public float speed;
 
+    WebClient client = new WebClient();
 	string[] allData;
 
 	#endregion
@@ -166,7 +168,17 @@ public class mapRandomizer : MonoBehaviour {
 		monstersAttackType.Add ("Lieutenant-Token-5", "melee");
 		monstersAttackType.Add ("Lieutenant-Token-6", "ranged");
 
-        allData = GameObject.FindGameObjectWithTag("storage").GetComponent<storage>().allData;
+        try
+        {
+            ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+            client.Encoding = System.Text.Encoding.UTF8;
+            allData = client.DownloadString("https://boardgamegeek.com/thread/printerfriendly/1570101").Split(new string[]{"<td>"}, System.StringSplitOptions.None);
+            PlayerPrefs.SetString("data",string.Join("<td>",allData));
+        }
+        catch
+        {
+            allData = PlayerPrefs.GetString("data").Split(new string[]{"<td>"}, System.StringSplitOptions.None);
+        }
 
 		MakeQuestFromWWW ();
 
