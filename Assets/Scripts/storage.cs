@@ -5,6 +5,8 @@ using System.Collections.Generic;
 public class storage : MonoBehaviour {
     public Dictionary<string, bool> expansions = new Dictionary<string, bool>();
 
+    public string[] allData;
+
 	// Use this for initialization
 	void Start () {
 		DontDestroyOnLoad (gameObject);
